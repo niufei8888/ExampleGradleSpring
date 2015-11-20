@@ -11,10 +11,12 @@ public class Greeting {
     }
 
     public long getId() {
+
         return id;
     }
 
     public String getContent() {
+
         return content;
     }
 }
