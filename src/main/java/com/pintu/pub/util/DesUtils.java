@@ -1,10 +1,10 @@
 package com.pintu.pub.util;
 
-import java.security.SecureRandom;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
+import java.security.SecureRandom;
 
 /**
  * DES加密和解密工具,可以对字符串进行加密和解密操作 。

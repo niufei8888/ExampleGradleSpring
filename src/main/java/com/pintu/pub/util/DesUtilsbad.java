@@ -1,9 +1,8 @@
 package com.pintu.pub.util;
 
+import javax.crypto.Cipher;
 import java.security.Key;
 import java.security.Security;
-
-import javax.crypto.Cipher;
 
 /**
  * DES加密和解密工具,可以对字符串进行加密和解密操作 。

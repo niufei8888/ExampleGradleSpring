@@ -1,8 +1,9 @@
 package com.pintu.system.entity;
 
 
-import java.util.Date;
 import com.pintu.pub.entity.BaseEntity;
+
+import java.util.Date;
 
 @SuppressWarnings("serial")
 public class Collection extends BaseEntity {

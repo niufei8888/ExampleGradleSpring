@@ -1,34 +1,22 @@
 package com.pintu.pub.dao.impl;
 
-import com.google.gson.Gson;
-import com.mysql.jdbc.Statement;
 import com.pintu.pub.dao.BaseDao;
 import com.pintu.pub.dao.SqlUtil;
 import com.pintu.pub.entity.BaseEntity;
 import com.pintu.pub.entity.ProcEntity;
 import com.pintu.pub.page.PageResult;
-import com.sun.org.apache.bcel.internal.generic.SIPUSH;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Date;
 
 @SuppressWarnings({"rawtypes","unused","unchecked","null"})
 public class BaseJdbcDao implements BaseDao {

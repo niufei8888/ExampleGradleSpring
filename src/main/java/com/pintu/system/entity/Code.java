@@ -1,8 +1,6 @@
 package com.pintu.system.entity;
 
 
-import java.util.Date;
-
 import com.pintu.pub.entity.BaseEntity;
 
 @SuppressWarnings("serial")

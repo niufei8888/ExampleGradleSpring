@@ -1,9 +1,5 @@
 package com.pintu.server.comm;
 
-import java.util.ArrayList;
-
-import java.util.List;
-
 @SuppressWarnings("unchecked")
 public class PublicUilt {
 	/**

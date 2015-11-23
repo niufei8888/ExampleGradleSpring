@@ -1,19 +1,16 @@
 package com.pintu.system.service;
 
 
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Service;
-
 import com.pintu.server.comm.PublicJdbcDao;
 import com.pintu.system.entity.Code;
 import com.pintu.system.entity.Collection;
 import com.pintu.system.entity.Member;
 import com.pintu.system.entity.Pool;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("unchecked")
 @Service(value = "loginService")
