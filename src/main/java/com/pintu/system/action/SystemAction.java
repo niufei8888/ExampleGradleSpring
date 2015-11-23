@@ -1,14 +1,29 @@
 package com.pintu.system.action;
 
-import com.pintu.pub.action.BaseAction;
-import com.pintu.system.entity.Code;
-import com.pintu.system.entity.Collection;
-import com.pintu.system.entity.Member;
-import com.pintu.system.entity.Pool;
-import com.pintu.system.service.SystemService;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Controller;
-import sun.misc.BASE64Decoder;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Random;
+import java.util.zip.GZIPInputStream;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
@@ -25,15 +40,34 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.*;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
+
+import org.apache.batik.apps.rasterizer.Main;
+import org.apache.catalina.connector.Request;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+
+import sun.misc.BASE64Decoder;
+
+import com.pintu.pub.action.BaseAction;
+import com.pintu.system.entity.Code;
+import com.pintu.system.entity.Collection;
+import com.pintu.system.entity.Member;
+import com.pintu.system.entity.Pool;
+import com.pintu.system.service.SystemService;
+
+/*import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGEncodeParam;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;*/
+
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
+import javax.imageio.stream.ImageOutputStream;
+
+import com.sun.imageio.plugins.jpeg.*;
+
 
 @SuppressWarnings({ "unused", "unchecked", "serial" })
 @Scope("prototype")
@@ -79,9 +113,9 @@ public class SystemAction extends BaseAction {
     private final static String YX_PWD="Tekuma2015";//邮箱登陆密码
     private final static String YX_SMTP="smtpout.secureserver.net";//邮箱smtp
     /**
-     * 按照宽度还是高度进行压缩 
-     * @param w int 最大宽度 
-     * @param h int 最大高度 
+     * 按照宽度还是高度进行压缩
+     * @param w int 最大宽度
+     * @param h int 最大高度
      */
     public void resizeFix(int w, int h) throws IOException {
         if (width / height > w / h) {
@@ -91,16 +125,16 @@ public class SystemAction extends BaseAction {
         }
     }
     /**
-     * 以宽度为基准，等比例放缩图片 
-     * @param w int 新宽度 
+     * 以宽度为基准，等比例放缩图片
+     * @param w int 新宽度
      */
     public void resizeByWidth(int w) throws IOException {
         int h = (int) (height * w / width);
         resize(w, h);
     }
     /**
-     * 以高度为基准，等比例缩放图片 
-     * @param h int 新高度 
+     * 以高度为基准，等比例缩放图片
+     * @param h int 新高度
      */
     public void resizeByHeight(int h) throws IOException {
         int w = (int) (width * h / height);
@@ -364,14 +398,14 @@ public class SystemAction extends BaseAction {
 
                 is.close();
                 iis.close();
-		        
+
 		       /* BufferedImage image = new BufferedImage(YS_WIDTH, YS_HEIGHT,BufferedImage.TYPE_INT_RGB );
-		        image.getGraphics().drawImage(bi, 0, 0, YS_WIDTH, YS_HEIGHT, null); // 绘制缩小后的图  
-		        File destFile = new File(cutFilePath);  
-		        FileOutputStream out = new FileOutputStream(destFile); // 输出到文件流  
-		        // 可以正常实现bmp、png、gif转jpg  
-		        JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);  
-		        encoder.encode(bi); // JPEG编码  
+		        image.getGraphics().drawImage(bi, 0, 0, YS_WIDTH, YS_HEIGHT, null); // 绘制缩小后的图
+		        File destFile = new File(cutFilePath);
+		        FileOutputStream out = new FileOutputStream(destFile); // 输出到文件流
+		        // 可以正常实现bmp、png、gif转jpg
+		        JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
+		        encoder.encode(bi); // JPEG编码
 		        out.close();  */
 
                 //poll显示的缩略图
@@ -392,22 +426,57 @@ public class SystemAction extends BaseAction {
     }
 
     /**
-     * 强制压缩/放大图片到固定的大小 
-     * @param w int 新宽度 
-     * @param h int 新高度 
+     * 强制压缩/放大图片到固定的大小
+     * @param w int 新宽度
+     * @param h int 新高度
      */
     public void resize(int w, int h) throws IOException {
         Member member = (Member)this.request.getSession().getAttribute("member");
-        // SCALE_SMOOTH 的缩略算法 生成缩略图片的平滑度的 优先级比速度高 生成的图片质量比较好 但速度慢  
+        // SCALE_SMOOTH 的缩略算法 生成缩略图片的平滑度的 优先级比速度高 生成的图片质量比较好 但速度慢
         BufferedImage image = new BufferedImage(w, h,BufferedImage.TYPE_INT_RGB );
-        image.getGraphics().drawImage(img, 0, 0, w, h, null); // 绘制缩小后的图  
+        image.getGraphics().drawImage(img, 0, 0, w, h, null); // 绘制缩小后的图
         String file=LOCALFILEURL+member.getId()+"/"+pool.getId()+"tb"+"."+imgSuffix;
         File destFile = new File(file);
-        FileOutputStream out = new FileOutputStream(destFile); // 输出到文件流  
+        FileOutputStream out = new FileOutputStream(destFile); // 输出到文件流
         // 可以正常实现bmp、png、gif转jpg
-        ImageIO.write(image, "jpeg", out);
+        //JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
+        //encoder.encode(image); // JPEG编码
         out.close();
     }
+
+
+
+
+    public static void saveAsJPEG(Integer dpi, BufferedImage image_to_save,
+                                  float JPEGcompression, FileOutputStream fos) throws IOException {
+        JPEGImageWriter imageWriter = (JPEGImageWriter) ImageIO
+                .getImageWritersBySuffix("jpg").next();
+        ImageOutputStream ios = ImageIO.createImageOutputStream(fos);
+        imageWriter.setOutput(ios);
+        // and metadata
+        IIOMetadata imageMetaData = imageWriter.getDefaultImageMetadata(
+                new ImageTypeSpecifier(image_to_save), null);
+
+        if (JPEGcompression >= 0 && JPEGcompression <= 1f) {
+            JPEGImageWriteParam jpegParams = (JPEGImageWriteParam) imageWriter
+                    .getDefaultWriteParam();
+            jpegParams.setCompressionMode(JPEGImageWriteParam.MODE_EXPLICIT);
+            jpegParams.setCompressionQuality(JPEGcompression);
+
+        }
+
+        imageWriter.write(imageMetaData,
+                new IIOImage(image_to_save, null, null), null);
+        ios.close();
+        imageWriter.dispose();
+
+    }
+
+
+
+
+
+
 
     /**
      * 上传用户头像
@@ -419,7 +488,7 @@ public class SystemAction extends BaseAction {
             String imgFilePath=saveHeadPic(imgStr,member.getId()).get("localUrl");
             FileInputStream is = null;
             ImageInputStream iis = null;
-            // 读取图片文件  
+            // 读取图片文件
             is = new FileInputStream(imgFilePath);
             String [] imgStrs=imgStr.split(",");
             imgStr=imgStrs[1];
@@ -427,7 +496,7 @@ public class SystemAction extends BaseAction {
             Iterator<ImageReader> it = ImageIO
                     .getImageReadersByFormatName(imgSuffix);
             ImageReader reader = it.next();
-            // 获取图片流  
+            // 获取图片流
             iis = ImageIO.createImageInputStream(is);
             reader.setInput(iis, true);
             int v=reader.getWidth(0);
@@ -436,10 +505,10 @@ public class SystemAction extends BaseAction {
                     Integer.valueOf(this.request.getParameter("imgY1")),
                     Integer.valueOf(this.request.getParameter("imgW")),
                     Integer.valueOf(this.request.getParameter("imgH")));
-            // 提供一个 BufferedImage，将其用作解码像素数据的目标。  
+            // 提供一个 BufferedImage，将其用作解码像素数据的目标。
             param.setSourceRegion(rect);
             BufferedImage bi = reader.read(0, param);
-            // 保存新图片  
+            // 保存新图片
             ImageIO.write(bi, imgSuffix, new File(imgFilePath));
             is.close();
             iis.close();
@@ -488,12 +557,12 @@ public class SystemAction extends BaseAction {
     }
 
     /**
-     * 构造函数 
+     * 构造函数
      */
     public void createThumbnail(File file) throws IOException {
         img = ImageIO.read(file);      // 构造Image对象
-        width = img.getWidth(null);    // 得到源图宽  
-        height = img.getHeight(null);  // 得到源图长  
+        width = img.getWidth(null);    // 得到源图宽
+        height = img.getHeight(null);  // 得到源图长
         resizeFix(YS_WIDTH,YS_HEIGHT);
     }
 
@@ -502,14 +571,14 @@ public class SystemAction extends BaseAction {
      * @param file
      * @throws IOException
      *//*
-    public void createThumbnailac(File file) throws IOException {  
-    	 img = ImageIO.read(file);      // 构造Image对象  
-  
-    	 width = img.getWidth(null);    // 原图宽度 
+    public void createThumbnailac(File file) throws IOException {
+    	 img = ImageIO.read(file);      // 构造Image对象
+
+    	 width = img.getWidth(null);    // 原图宽度
          height = img.getHeight(null);  // 原图高度
-         
+
         resize(width,height);
-    } 
+    }
     */
     /**
      * 复制文件
@@ -781,11 +850,11 @@ public class SystemAction extends BaseAction {
         sql="delete from tk_relevancy_t where collectionId="+collection.getId();
         this.systemService.getPublicJdbcDao().executeSQL(sql);
     }
-	
-	
-	
-	
-	
+
+
+
+
+
 	/*==================hg======================*/
 
     /**
@@ -953,7 +1022,7 @@ public class SystemAction extends BaseAction {
 
             result.getGraphics().drawImage(
                     im.getScaledInstance(toWidth, toHeight,
-                            Image.SCALE_SMOOTH), 0, 0, null);
+                            java.awt.Image.SCALE_SMOOTH), 0, 0, null);
         } catch (Exception e) {
             System.out.println("创建缩略图发生异常" + e.getMessage());
         }
@@ -961,15 +1030,17 @@ public class SystemAction extends BaseAction {
     }
 
     public boolean writeHighQuality(BufferedImage im, String fileFullPath) {
-        // TODO Fei: Use ImageIO to replace JPEGImageEncoder
         try {
-            /*输出到文件流*/
+                /*输出到文件流*/
             FileOutputStream newimage = new FileOutputStream(fileFullPath);
-            JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(newimage);
-            JPEGEncodeParam jep = JPEGCodec.getDefaultJPEGEncodeParam(im);
+            //  JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(newimage);
+            // JPEGEncodeParam jep = JPEGCodec.getDefaultJPEGEncodeParam(im);
                 /* 压缩质量 */
-            jep.setQuality(0.9f, true);
-            encoder.encode(im, jep);
+            // jep.setQuality(0.9f, true);
+            // encoder.encode(im, jep);
+
+            saveAsJPEG(300, im, 0.9f, newimage);
+
                /*近JPEG编码*/
             newimage.close();
             return true;
@@ -978,7 +1049,7 @@ public class SystemAction extends BaseAction {
         }
     }
     //整体压缩图片结束
-	
+
 	/*========================================*/
 
     /**
