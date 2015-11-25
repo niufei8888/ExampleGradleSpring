@@ -1,35 +1,22 @@
 package com.pintu.system.action;
 
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Random;
-import java.util.zip.GZIPInputStream;
+import com.pintu.pub.action.BaseAction;
+import com.pintu.system.entity.Code;
+import com.pintu.system.entity.Collection;
+import com.pintu.system.entity.Member;
+import com.pintu.system.entity.Pool;
+import com.pintu.system.service.SystemService;
+import com.sun.imageio.plugins.jpeg.JPEGImageWriter;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+import sun.misc.BASE64Decoder;
 
 import javax.annotation.Resource;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
+import javax.imageio.*;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
 import javax.mail.Authenticator;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
@@ -40,33 +27,19 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
-
-import org.apache.batik.apps.rasterizer.Main;
-import org.apache.catalina.connector.Request;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Controller;
-
-import sun.misc.BASE64Decoder;
-
-import com.pintu.pub.action.BaseAction;
-import com.pintu.system.entity.Code;
-import com.pintu.system.entity.Collection;
-import com.pintu.system.entity.Member;
-import com.pintu.system.entity.Pool;
-import com.pintu.system.service.SystemService;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 /*import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGEncodeParam;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;*/
-
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageTypeSpecifier;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
-import javax.imageio.stream.ImageOutputStream;
-
-import com.sun.imageio.plugins.jpeg.*;
 
 
 @SuppressWarnings({ "unused", "unchecked", "serial" })
