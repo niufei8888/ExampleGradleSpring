@@ -11,7 +11,7 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
 apply plugin: 'war'
-
+apply plugin: 'jetty'
 
 jar {
     baseName = 'gs-rest-service'
@@ -36,6 +36,7 @@ dependencies {
     compile 'org.springframework:spring-jdbc:4.2.3.RELEASE'
     compile 'com.google.code.gson:gson:2.4'
     compile 'batik:batik-rasterizer:1.6-1'
+    compile 'org.apache.maven.plugins:maven-compiler-plugin:2.3.2'
 
 
     testCompile 'junit:junit'
@@ -43,4 +44,8 @@ dependencies {
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
